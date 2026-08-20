@@ -1,466 +1,577 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>SRP Photography - Wedding Album</title>
+<title>Flipbook</title>
 
 <style>
-*{
-    box-sizing:border-box;
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
-html,body{
-    margin:0;
-    width:100%;
-    height:100%;
-    overflow:hidden;
+html,
+body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #222;
+    font-family: Arial, sans-serif;
 }
 
-body{
-    background:url("background.jpg") center/cover no-repeat fixed;
-    font-family:Arial,sans-serif;
+/* Main flipbook area */
+#book {
+    width: 100vw;
+    height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    perspective: 2500px;
 }
 
-body::before{
-    content:"";
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,.25);
-    z-index:0;
+/* Each physical page */
+.page {
+    position: absolute;
+
+    width: min(48vw, 650px);
+    height: min(88vh, 950px);
+
+    background: #fff;
+
+    transform-origin: left center;
+
+    transform-style: preserve-3d;
+
+    transition:
+        transform 0.9s cubic-bezier(.2,.7,.2,1);
+
+    box-shadow:
+        0 8px 30px rgba(0,0,0,.45);
+
+    overflow: hidden;
+
+    backface-visibility: hidden;
 }
 
-/* START SCREEN */
-
-#start{
-    position:fixed;
-    inset:0;
-    z-index:1000;
-
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    gap:16px;
-
-    color:white;
-    background:rgba(0,0,0,.90);
+/*
+    12x18 page:
+    Ratio = 2:3
+*/
+.page.single {
+    aspect-ratio: 2 / 3;
 }
 
-#startLogo{
-    width:140px;
-    height:140px;
-    object-fit:contain;
+/*
+    12x36 spread:
+    Whole spread ratio = 1:3
+
+    But the spread is displayed as two
+    exact 12x18 halves.
+*/
+.spread {
+    position: absolute;
+
+    width: min(96vw, 1300px);
+    height: min(88vh, 950px);
+
+    display: flex;
+
+    background: white;
+
+    box-shadow:
+        0 8px 30px rgba(0,0,0,.45);
+
+    transform-style: preserve-3d;
 }
 
-#startTitle{
-    font-size:30px;
-    font-weight:bold;
+/* Each half of 12x36 */
+.half {
+    width: 50%;
+    height: 100%;
+
+    position: relative;
+
+    overflow: hidden;
+
+    background: white;
 }
 
-#startBtn{
-    padding:14px 30px;
-    font-size:20px;
-    border:0;
-    border-radius:12px;
-    cursor:pointer;
+/*
+    IMPORTANT:
+    Image is NEVER stretched.
+*/
+.half img,
+.page.single img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: contain;
+
+    object-position: center center;
+
+    display: block;
 }
 
-#loading{
-    display:none;
+/* Center folding line */
+.spread::after {
+    content: "";
+
+    position: absolute;
+
+    left: 50%;
+    top: 0;
+
+    width: 1px;
+    height: 100%;
+
+    background: rgba(0,0,0,.18);
+
+    transform: translateX(-50%);
+
+    pointer-events: none;
 }
 
-/* BOOK */
-
-#app{
-    position:relative;
-    z-index:5;
-
-    width:100%;
-    height:100%;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
+/* Page turn */
+.turning {
+    transform:
+        rotateY(-180deg);
 }
 
-#book{
-    /*
-       2520 × 840 = EXACT 3:1
-    */
-    width:min(94vw,1500px);
-    aspect-ratio:3 / 1;
+/* Controls */
+#controls {
+    position: fixed;
+
+    left: 50%;
+    bottom: 20px;
+
+    transform: translateX(-50%);
+
+    z-index: 9999;
+
+    display: flex;
+    gap: 10px;
 }
 
-/* FIXED LOGO */
+button {
+    border: none;
 
-#cornerLogo{
-    position:fixed;
+    background: rgba(0,0,0,.75);
+    color: white;
 
-    top:15px;
-    left:15px;
+    padding: 12px 22px;
 
-    width:75px;
-    height:75px;
+    border-radius: 8px;
 
-    object-fit:contain;
+    cursor: pointer;
 
-    z-index:2000;
-    display:none;
-
-    filter:drop-shadow(0 3px 8px rgba(0,0,0,.7));
+    font-size: 16px;
 }
 
-/* WHATSAPP */
-
-#whatsapp{
-    position:fixed;
-
-    right:15px;
-    bottom:15px;
-
-    z-index:2000;
-    display:none;
-
-    align-items:center;
-    gap:8px;
-
-    padding:10px 16px;
-
-    border-radius:30px;
-
-    background:#25D366;
-    color:white;
-
-    text-decoration:none;
-    font-size:15px;
-    font-weight:bold;
-
-    box-shadow:0 4px 14px rgba(0,0,0,.5);
+button:hover {
+    background: rgba(255,255,255,.2);
 }
 
-#waIcon{
-    font-size:22px;
-}
+#pageNumber {
+    position: fixed;
 
-/* PAGE FLIP IMAGE */
+    top: 15px;
+    left: 50%;
 
-.stf__item img{
-    width:100% !important;
-    height:100% !important;
+    transform: translateX(-50%);
 
-    object-fit:contain !important;
+    color: white;
 
-    display:block;
-}
+    background: rgba(0,0,0,.65);
 
-/* MOBILE */
+    padding: 7px 15px;
 
-@media(max-width:600px){
+    border-radius: 20px;
 
-    #startLogo{
-        width:110px;
-        height:110px;
-    }
-
-    #startTitle{
-        font-size:24px;
-    }
-
-    #cornerLogo{
-        width:55px;
-        height:55px;
-        left:8px;
-        top:8px;
-    }
-
-    #whatsapp{
-        right:8px;
-        bottom:8px;
-        padding:8px 12px;
-        font-size:12px;
-    }
-
-    #waIcon{
-        font-size:19px;
-    }
-
-    #book{
-        width:96vw;
-    }
+    z-index: 9999;
 }
 </style>
 </head>
 
 <body>
 
-<!-- START -->
+<div id="book"></div>
 
-<div id="start">
-
-    <img
-        id="startLogo"
-        src="logo.png"
-        alt="SRP Photography">
-
-    <div id="startTitle">
-        📖 Wedding Album
-    </div>
-
-    <button id="startBtn">
-        ▶️ Tap to Start Album
-    </button>
-
-    <div id="loading">
-        Album loading...
-    </div>
-
+<div id="pageNumber">
+    Page 1
 </div>
 
-
-<!-- FIXED LOGO -->
-
-<img
-    id="cornerLogo"
-    src="logo.png"
-    alt="SRP Photography">
-
-
-<!-- ALBUM -->
-
-<div id="app">
-    <div id="book"></div>
+<div id="controls">
+    <button onclick="previousPage()">◀ Previous</button>
+    <button onclick="nextPage()">Next ▶</button>
 </div>
-
-
-<!-- WHATSAPP -->
-
-<a
-    id="whatsapp"
-    href="https://wa.me/916262735390"
-    target="_blank">
-
-    <span id="waIcon">💬</span>
-    <span>+91 62627 35390</span>
-
-</a>
-
-
-<!-- MUSIC -->
-
-<audio id="music" loop preload="auto">
-    <source src="music.mp3" type="audio/mpeg">
-</audio>
-
-
-<!-- PAGE FLIP -->
-
-<script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
-
 
 <script>
 
-const start =
-document.getElementById("start");
+/*
+=========================================================
+                    YOUR PAGES
+=========================================================
 
-const startBtn =
-document.getElementById("startBtn");
+Put your page images here.
 
-const loading =
-document.getElementById("loading");
+IMPORTANT:
 
-const book =
-document.getElementById("book");
+12x18 = one image
 
-const music =
-document.getElementById("music");
+12x36 = one WIDE image
 
-const cornerLogo =
-document.getElementById("cornerLogo");
+Example:
 
-const whatsapp =
-document.getElementById("whatsapp");
+{
+    type: "single",
+    image: "pages/page1.jpg"
+}
+
+and
+
+{
+    type: "spread",
+    image: "pages/page2-3.jpg"
+}
+
+=========================================================
+*/
+
+const pages = [
+
+    {
+        type: "single",
+        image: "pages/page1.jpg"
+    },
+
+    {
+        type: "spread",
+        image: "pages/page2-3.jpg"
+    },
+
+    {
+        type: "spread",
+        image: "pages/page4-5.jpg"
+    },
+
+    {
+        type: "single",
+        image: "pages/page6.jpg"
+    },
+
+    {
+        type: "spread",
+        image: "pages/page7-8.jpg"
+    }
+
+];
 
 
 /*
-    GitHub Pages images
+=========================================================
+                FLIPBOOK ENGINE
+=========================================================
 */
 
-const GITHUB_API =
-"https://api.github.com/repos/srpphotography/wedding-album/contents/pages";
+const book = document.getElementById("book");
+const pageNumber = document.getElementById("pageNumber");
+
+let currentPage = 0;
+let busy = false;
 
 
-startBtn.addEventListener("click", async function(){
+/*
+---------------------------------------------------------
+Create Single 12x18 page
+---------------------------------------------------------
+*/
 
-    startBtn.style.display="none";
-    loading.style.display="block";
+function createSinglePage(item, index) {
 
-    /* MUSIC */
+    const page = document.createElement("div");
 
-    try{
-        await music.play();
-    }
-    catch(e){
-        console.log("Music permission waiting");
-    }
+    page.className = "page single";
 
+    page.dataset.index = index;
 
-    /* FIXED CONTROLS */
+    const img = document.createElement("img");
 
-    cornerLogo.style.display="block";
-    whatsapp.style.display="flex";
+    img.src = item.image;
 
+    img.draggable = false;
 
-    try{
+    page.appendChild(img);
 
-        loading.innerText=
-            "52 sheets खोज रहे हैं...";
+    book.appendChild(page);
 
-
-        /* GET FILES */
-
-        const response =
-            await fetch(GITHUB_API);
+    return page;
+}
 
 
-        if(!response.ok){
-            throw new Error(
-                "Pages folder नहीं मिला"
-            );
+/*
+---------------------------------------------------------
+Create 12x36 spread
+
+The image is split EXACTLY at 50%.
+
+Left half = first 12x18
+
+Right half = second 12x18
+
+No stretching.
+No cropping.
+---------------------------------------------------------
+*/
+
+function createSpread(item, index) {
+
+    const spread = document.createElement("div");
+
+    spread.className = "spread";
+
+    spread.dataset.index = index;
+
+
+    /*
+        LEFT HALF
+    */
+
+    const left = document.createElement("div");
+
+    left.className = "half";
+
+    const leftImg = document.createElement("img");
+
+    leftImg.src = item.image;
+
+    leftImg.draggable = false;
+
+    /*
+        The complete image is positioned
+        inside the half.
+
+        Important:
+        We use object-fit: cover ONLY here
+        because the image itself is being
+        split into two physical halves.
+
+        The image width is 200% of the half.
+    */
+
+    leftImg.style.width = "200%";
+    leftImg.style.maxWidth = "none";
+
+    leftImg.style.objectFit = "contain";
+
+    leftImg.style.objectPosition = "left center";
+
+    left.appendChild(leftImg);
+
+
+    /*
+        RIGHT HALF
+    */
+
+    const right = document.createElement("div");
+
+    right.className = "half";
+
+    const rightImg = document.createElement("img");
+
+    rightImg.src = item.image;
+
+    rightImg.draggable = false;
+
+    rightImg.style.width = "200%";
+    rightImg.style.maxWidth = "none";
+
+    rightImg.style.objectFit = "contain";
+
+    rightImg.style.objectPosition = "right center";
+
+    right.appendChild(rightImg);
+
+
+    spread.appendChild(left);
+    spread.appendChild(right);
+
+    book.appendChild(spread);
+
+    return spread;
+}
+
+
+/*
+---------------------------------------------------------
+Build book
+---------------------------------------------------------
+*/
+
+function buildBook() {
+
+    book.innerHTML = "";
+
+    pages.forEach((item, index) => {
+
+        if (item.type === "single") {
+
+            createSinglePage(item, index);
+
         }
 
+        else if (item.type === "spread") {
 
-        const files =
-            await response.json();
-
-
-        /*
-            EXACT FILE PATTERN
-
-            01 (1).jpg
-            01 (2).jpg
-            ...
-            01 (52).jpg
-        */
-
-        const images =
-            files
-            .filter(file =>
-                file.type==="file" &&
-                /^01 \((\d+)\)\.jpg$/i
-                .test(file.name)
-            )
-            .sort((a,b)=>{
-
-                const A =
-                    parseInt(
-                        a.name.match(/\((\d+)\)/)[1]
-                    );
-
-                const B =
-                    parseInt(
-                        b.name.match(/\((\d+)\)/)[1]
-                    );
-
-                return A-B;
-
-            });
-
-
-        if(images.length !== 52){
-
-            throw new Error(
-                "52 sheets की जगह " +
-                images.length +
-                " sheets मिलीं।"
-            );
+            createSpread(item, index);
 
         }
 
+    });
 
-        /*
-            Every JPG:
+    updatePages();
 
-            2520 × 840
-            EXACT 3:1
-
-            Each JPG = complete
-            LEFT + RIGHT spread.
-        */
-
-        const spreadImages =
-            images.map(
-                file => file.download_url
-            );
+}
 
 
-        loading.innerText=
-            "Flipbook तैयार हो रहा है...";
+/*
+---------------------------------------------------------
+Update visible page
+---------------------------------------------------------
+*/
+
+function updatePages() {
+
+    const allPages =
+        document.querySelectorAll(".page, .spread");
+
+    allPages.forEach((page, index) => {
+
+        page.style.zIndex =
+            pages.length - index;
+
+        page.style.display =
+            index <= currentPage
+                ? "flex"
+                : "none";
+
+    });
+
+    pageNumber.innerText =
+        "Page " + (currentPage + 1)
+        + " / " + pages.length;
+}
 
 
-        /*
-            FLIPBOOK
+/*
+---------------------------------------------------------
+NEXT
+---------------------------------------------------------
+*/
 
-            1200 × 400
-            EXACT 3:1
-        */
+function nextPage() {
 
-        const flip =
-            new St.PageFlip(
-                book,
-                {
+    if (busy) return;
 
-                    width:1200,
-                    height:400,
+    if (currentPage >= pages.length - 1) {
+        return;
+    }
 
-                    size:"stretch",
+    busy = true;
 
-                    minWidth:600,
-                    maxWidth:1500,
+    const allPages =
+        document.querySelectorAll(".page, .spread");
 
-                    minHeight:200,
-                    maxHeight:500,
+    const current =
+        allPages[currentPage];
 
-                    showCover:true,
+    current.style.display = "flex";
 
-                    mobileScrollSupport:false,
+    current.classList.add("turning");
 
-                    usePortrait:false,
+    setTimeout(() => {
 
-                    maxShadowOpacity:0.5,
+        currentPage++;
 
-                    flippingTime:700
+        updatePages();
 
-                }
-            );
+        busy = false;
 
-
-        /*
-            LOAD 52 COMPLETE SPREADS
-        */
-
-        flip.loadFromImages(
-            spreadImages
-        );
+    }, 900);
+}
 
 
-        /* HIDE START */
+/*
+---------------------------------------------------------
+PREVIOUS
+---------------------------------------------------------
+*/
 
-        start.style.display="none";
+function previousPage() {
 
+    if (busy) return;
+
+    if (currentPage <= 0) {
+        return;
+    }
+
+    busy = true;
+
+    currentPage--;
+
+    const allPages =
+        document.querySelectorAll(".page, .spread");
+
+    const previous =
+        allPages[currentPage];
+
+    previous.style.display = "flex";
+
+    previous.classList.remove("turning");
+
+    updatePages();
+
+    setTimeout(() => {
+
+        busy = false;
+
+    }, 900);
+}
+
+
+/*
+---------------------------------------------------------
+Keyboard
+---------------------------------------------------------
+*/
+
+document.addEventListener("keydown", function(e) {
+
+    if (e.key === "ArrowRight") {
+
+        nextPage();
 
     }
-    catch(error){
 
-        loading.innerText=
-            "Error: "+error.message;
+    if (e.key === "ArrowLeft") {
 
-        console.error(error);
+        previousPage();
 
     }
 
 });
+
+
+/*
+---------------------------------------------------------
+START
+---------------------------------------------------------
+*/
+
+buildBook();
 
 </script>
 
