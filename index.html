@@ -2,9 +2,9 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Wedding Album</title>
+<title>SRP Photography - Wedding Album</title>
 
 <style>
 *{
@@ -16,33 +16,36 @@ html,body{
     width:100%;
     height:100%;
     overflow:hidden;
-    font-family:Arial,sans-serif;
 }
 
 body{
-    background:#111 url("background.jpg") center center / cover no-repeat fixed;
+    background:url("background.jpg") center/cover no-repeat fixed;
+    font-family:Arial,sans-serif;
 }
 
 body::before{
     content:"";
     position:fixed;
     inset:0;
-    background:rgba(0,0,0,.30);
+    background:rgba(0,0,0,.25);
     z-index:0;
 }
+
+/* START SCREEN */
 
 #start{
     position:fixed;
     inset:0;
-    z-index:50;
-    background:rgba(0,0,0,.90);
-    color:white;
+    z-index:1000;
+
     display:flex;
+    flex-direction:column;
     align-items:center;
     justify-content:center;
-    flex-direction:column;
     gap:16px;
-    text-align:center;
+
+    color:white;
+    background:rgba(0,0,0,.90);
 }
 
 #startLogo{
@@ -57,8 +60,8 @@ body::before{
 }
 
 #startBtn{
-    font-size:20px;
     padding:14px 30px;
+    font-size:20px;
     border:0;
     border-radius:12px;
     cursor:pointer;
@@ -66,65 +69,71 @@ body::before{
 
 #loading{
     display:none;
-    font-size:16px;
 }
+
+/* BOOK */
 
 #app{
     position:relative;
     z-index:5;
+
     width:100%;
     height:100%;
+
     display:flex;
     align-items:center;
     justify-content:center;
 }
 
 #book{
-    width:min(94vw,1200px);
-    height:min(88vh,600px);
+    /*
+       2520 × 840 = EXACT 3:1
+    */
+    width:min(94vw,1500px);
+    aspect-ratio:3 / 1;
 }
 
 /* FIXED LOGO */
 
 #cornerLogo{
     position:fixed;
-    left:15px;
+
     top:15px;
+    left:15px;
 
     width:75px;
     height:75px;
 
     object-fit:contain;
 
-    z-index:100;
+    z-index:2000;
     display:none;
 
     filter:drop-shadow(0 3px 8px rgba(0,0,0,.7));
-
-    pointer-events:none;
 }
 
 /* WHATSAPP */
 
 #whatsapp{
     position:fixed;
+
     right:15px;
     bottom:15px;
 
-    z-index:100;
+    z-index:2000;
     display:none;
 
     align-items:center;
     gap:8px;
 
+    padding:10px 16px;
+
+    border-radius:30px;
+
     background:#25D366;
     color:white;
 
     text-decoration:none;
-
-    padding:10px 15px;
-    border-radius:30px;
-
     font-size:15px;
     font-weight:bold;
 
@@ -134,6 +143,19 @@ body::before{
 #waIcon{
     font-size:22px;
 }
+
+/* PAGE FLIP IMAGE */
+
+.stf__item img{
+    width:100% !important;
+    height:100% !important;
+
+    object-fit:contain !important;
+
+    display:block;
+}
+
+/* MOBILE */
 
 @media(max-width:600px){
 
@@ -166,13 +188,14 @@ body::before{
 
     #book{
         width:96vw;
-        height:70vh;
     }
 }
 </style>
 </head>
 
 <body>
+
+<!-- START -->
 
 <div id="start">
 
@@ -195,14 +218,23 @@ body::before{
 
 </div>
 
+
+<!-- FIXED LOGO -->
+
 <img
     id="cornerLogo"
     src="logo.png"
     alt="SRP Photography">
 
+
+<!-- ALBUM -->
+
 <div id="app">
     <div id="book"></div>
 </div>
+
+
+<!-- WHATSAPP -->
 
 <a
     id="whatsapp"
@@ -214,11 +246,18 @@ body::before{
 
 </a>
 
+
+<!-- MUSIC -->
+
 <audio id="music" loop preload="auto">
     <source src="music.mp3" type="audio/mpeg">
 </audio>
 
+
+<!-- PAGE FLIP -->
+
 <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
+
 
 <script>
 
@@ -243,6 +282,11 @@ document.getElementById("cornerLogo");
 const whatsapp =
 document.getElementById("whatsapp");
 
+
+/*
+    GitHub Pages images
+*/
+
 const GITHUB_API =
 "https://api.github.com/repos/srpphotography/wedding-album/contents/pages";
 
@@ -252,10 +296,17 @@ startBtn.addEventListener("click", async function(){
     startBtn.style.display="none";
     loading.style.display="block";
 
+    /* MUSIC */
+
     try{
         await music.play();
-    }catch(e){}
+    }
+    catch(e){
+        console.log("Music permission waiting");
+    }
 
+
+    /* FIXED CONTROLS */
 
     cornerLogo.style.display="block";
     whatsapp.style.display="flex";
@@ -264,104 +315,146 @@ startBtn.addEventListener("click", async function(){
     try{
 
         loading.innerText=
-        "Album pages खोज रहे हैं...";
+            "52 sheets खोज रहे हैं...";
 
+
+        /* GET FILES */
 
         const response =
-        await fetch(GITHUB_API);
+            await fetch(GITHUB_API);
 
 
         if(!response.ok){
-            throw new Error("Pages folder नहीं मिला");
+            throw new Error(
+                "Pages folder नहीं मिला"
+            );
         }
 
 
         const files =
-        await response.json();
+            await response.json();
 
+
+        /*
+            EXACT FILE PATTERN
+
+            01 (1).jpg
+            01 (2).jpg
+            ...
+            01 (52).jpg
+        */
 
         const images =
-        files
-        .filter(file =>
-            file.type==="file" &&
-            /\.(jpg|jpeg|png|webp)$/i.test(file.name)
-        )
-        .sort((a,b)=>
-            a.name.localeCompare(
-                b.name,
-                undefined,
-                {
-                    numeric:true,
-                    sensitivity:"base"
-                }
+            files
+            .filter(file =>
+                file.type==="file" &&
+                /^01 \((\d+)\)\.jpg$/i
+                .test(file.name)
             )
-        );
+            .sort((a,b)=>{
+
+                const A =
+                    parseInt(
+                        a.name.match(/\((\d+)\)/)[1]
+                    );
+
+                const B =
+                    parseInt(
+                        b.name.match(/\((\d+)\)/)[1]
+                    );
+
+                return A-B;
+
+            });
 
 
-        if(images.length===0){
-            throw new Error("JPG images नहीं मिलीं");
+        if(images.length !== 52){
+
+            throw new Error(
+                "52 sheets की जगह " +
+                images.length +
+                " sheets मिलीं।"
+            );
+
         }
 
 
-        loading.innerText =
-        images.length +
-        " photos मिलीं...";
-
-
         /*
-          IMPORTANT:
-          Images को canvas में नहीं डाल रहे।
-          Direct JPG इस्तेमाल हो रही हैं।
+            Every JPG:
+
+            2520 × 840
+            EXACT 3:1
+
+            Each JPG = complete
+            LEFT + RIGHT spread.
         */
 
-        const pageImages =
-        images.map(file => file.download_url);
+        const spreadImages =
+            images.map(
+                file => file.download_url
+            );
+
+
+        loading.innerText=
+            "Flipbook तैयार हो रहा है...";
 
 
         /*
-          Flipbook का fixed frame 2:1 है,
-          लेकिन हर JPG अपने original ratio में
-          contain होगी।
+            FLIPBOOK
+
+            1200 × 400
+            EXACT 3:1
         */
 
         const flip =
-        new St.PageFlip(
-            book,
-            {
-                width:1200,
-                height:600,
+            new St.PageFlip(
+                book,
+                {
 
-                size:"stretch",
+                    width:1200,
+                    height:400,
 
-                minWidth:280,
-                maxWidth:1200,
+                    size:"stretch",
 
-                minHeight:300,
-                maxHeight:700,
+                    minWidth:600,
+                    maxWidth:1500,
 
-                showCover:true,
+                    minHeight:200,
+                    maxHeight:500,
 
-                mobileScrollSupport:false,
+                    showCover:true,
 
-                usePortrait:false,
+                    mobileScrollSupport:false,
 
-                maxShadowOpacity:.5,
+                    usePortrait:false,
 
-                flippingTime:650
-            }
+                    maxShadowOpacity:0.5,
+
+                    flippingTime:700
+
+                }
+            );
+
+
+        /*
+            LOAD 52 COMPLETE SPREADS
+        */
+
+        flip.loadFromImages(
+            spreadImages
         );
 
 
-        flip.loadFromImages(pageImages);
-
+        /* HIDE START */
 
         start.style.display="none";
 
 
-    }catch(error){
+    }
+    catch(error){
 
         loading.innerText=
-        "Error: "+error.message;
+            "Error: "+error.message;
 
         console.error(error);
 
