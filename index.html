@@ -2,7 +2,7 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 
 <title>Wedding Album</title>
 
@@ -19,18 +19,26 @@ html,body{
 #start{
     position:fixed;
     inset:0;
-    z-index:10;
-    background:rgba(0,0,0,.92);
+    z-index:20;
+    background:rgba(0,0,0,.94);
     color:white;
     display:flex;
     align-items:center;
     justify-content:center;
     flex-direction:column;
-    gap:18px;
+    gap:15px;
+    text-align:center;
+}
+
+#logo{
+    width:110px;
+    height:110px;
+    object-fit:contain;
+    border-radius:50%;
 }
 
 #start button{
-    font-size:20px;
+    font-size:19px;
     padding:14px 28px;
     border:0;
     border-radius:10px;
@@ -39,8 +47,8 @@ html,body{
 
 #loading{
     display:none;
-    color:white;
-    font-size:18px;
+    font-size:16px;
+    opacity:.9;
 }
 
 #app{
@@ -56,6 +64,20 @@ html,body{
     height:min(86vh,900px);
 }
 
+#contact{
+    position:fixed;
+    right:15px;
+    bottom:15px;
+    z-index:15;
+    background:#25D366;
+    color:white;
+    padding:10px 15px;
+    border-radius:25px;
+    text-decoration:none;
+    font-weight:bold;
+    box-shadow:0 3px 12px rgba(0,0,0,.4);
+}
+
 canvas{
     max-width:100%;
     max-height:100%;
@@ -66,16 +88,34 @@ canvas{
 <body>
 
 <div id="start">
-    <div style="font-size:28px">📖 Wedding Album</div>
-    <button id="startBtn">▶️ Tap to Start Album</button>
-    <div id="loading">Album loading...</div>
+
+    <img id="logo" src="logo.png" alt="Logo">
+
+    <div style="font-size:28px;font-weight:bold;">
+        📖 Wedding Album
+    </div>
+
+    <button id="startBtn">
+        ▶️ Tap to Start Album
+    </button>
+
+    <div id="loading">
+        Album loading...
+    </div>
+
 </div>
 
 <div id="app">
     <div id="book"></div>
 </div>
 
-<audio id="music" loop preload="auto">
+<a id="contact"
+   href="https://wa.me/916262735390"
+   target="_blank">
+   💬 WhatsApp
+</a>
+
+<audio id="music" preload="auto">
     <source src="music.mp3" type="audio/mpeg">
 </audio>
 
@@ -94,97 +134,114 @@ const loading = document.getElementById("loading");
 const music = document.getElementById("music");
 const book = document.getElementById("book");
 
+music.loop = true;
+
+music.addEventListener("ended", function(){
+    music.currentTime = 0;
+    music.play().catch(()=>{});
+});
+
 async function renderPDF(){
 
     loading.style.display = "block";
     btn.style.display = "none";
 
-    try {
+    try{
 
-        const pdf = await pdfjsLib.getDocument("album.pdf").promise;
+        const pdf = await pdfjsLib
+            .getDocument("album.pdf")
+            .promise;
 
         const pages = [];
 
         let pageWidth = 600;
         let pageHeight = 900;
 
-        for(let i = 1; i <= pdf.numPages; i++){
+        for(let i=1;i<=pdf.numPages;i++){
 
             loading.innerText =
-                "Album loading... " + i + " / " + pdf.numPages;
+                "Album loading... " +
+                i + " / " + pdf.numPages;
 
             const page = await pdf.getPage(i);
 
-            const originalViewport = page.getViewport({
-                scale: 1
-            });
+            const original =
+                page.getViewport({scale:1});
 
             const ratio =
-                originalViewport.height /
-                originalViewport.width;
+                original.height / original.width;
 
             if(i === 1){
                 pageWidth = 600;
-                pageHeight = Math.round(pageWidth * ratio);
+                pageHeight =
+                    Math.round(pageWidth * ratio);
             }
 
-            const viewport = page.getViewport({
-                scale: 1.2
-            });
+            const viewport =
+                page.getViewport({scale:1.1});
 
-            const canvas = document.createElement("canvas");
+            const canvas =
+                document.createElement("canvas");
 
             canvas.width = viewport.width;
             canvas.height = viewport.height;
 
-            const context = canvas.getContext("2d");
-
             await page.render({
-                canvasContext: context,
-                viewport: viewport
+                canvasContext:
+                    canvas.getContext("2d"),
+                viewport:viewport
             }).promise;
 
-            pages.push(canvas.toDataURL("image/jpeg",0.82));
+            pages.push(
+                canvas.toDataURL(
+                    "image/jpeg",
+                    0.78
+                )
+            );
         }
 
-        loading.innerText = "Album तैयार हो रहा है...";
+        loading.innerText =
+            "Album तैयार हो रहा है...";
 
-        const flip = new St.PageFlip(book,{
-            width:pageWidth,
-            height:pageHeight,
+        const flip =
+            new St.PageFlip(book,{
+                width:pageWidth,
+                height:pageHeight,
 
-            size:"stretch",
+                size:"stretch",
 
-            minWidth:280,
-            maxWidth:1000,
+                minWidth:280,
+                maxWidth:1000,
 
-            minHeight:420,
-            maxHeight:1400,
+                minHeight:420,
+                maxHeight:1400,
 
-            showCover:true,
-            mobileScrollSupport:false,
+                showCover:true,
 
-            usePortrait:true,
+                mobileScrollSupport:false,
 
-            maxShadowOpacity:0.5,
-            flippingTime:700
-        });
+                usePortrait:true,
+
+                maxShadowOpacity:.5,
+
+                flippingTime:650
+            });
 
         flip.loadFromImages(pages);
 
-        loading.style.display = "none";
-        start.style.display = "none";
+        start.style.display="none";
 
-    } catch(error){
+    }catch(error){
 
         loading.innerText =
-            "Album load नहीं हो पाया: " + error.message;
+            "Album load error: " +
+            error.message;
 
         console.error(error);
     }
 }
 
-btn.addEventListener("click", async function(){
+btn.addEventListener("click",async()=>{
 
     try{
         await music.play();
