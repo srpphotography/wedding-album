@@ -4,574 +4,812 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Flipbook</title>
+<title>Wedding Album</title>
 
 <style>
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
 }
 
-html,
-body {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: #222;
-    font-family: Arial, sans-serif;
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#111;
+    font-family:Arial,sans-serif;
 }
 
-/* Main flipbook area */
-#book {
-    width: 100vw;
-    height: 100vh;
 
-    display: flex;
-    justify-content: center;
-    align-items: center;
+/* ================= START SCREEN ================= */
 
-    perspective: 2500px;
+#startScreen{
+    position:fixed;
+    inset:0;
+    z-index:99999;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+
+    background:#111;
 }
 
-/* Each physical page */
-.page {
-    position: absolute;
+#startLogo{
+    width:190px;
+    max-width:60vw;
+    max-height:190px;
+    object-fit:contain;
+    margin-bottom:35px;
+}
 
-    width: min(48vw, 650px);
-    height: min(88vh, 950px);
+#playButton{
+    border:0;
+    padding:16px 42px;
 
-    background: #fff;
+    border-radius:50px;
 
-    transform-origin: left center;
+    background:white;
+    color:#111;
 
-    transform-style: preserve-3d;
+    font-size:20px;
+    font-weight:bold;
+
+    cursor:pointer;
+
+    box-shadow:0 8px 30px rgba(0,0,0,.6);
+
+    transition:.2s;
+}
+
+#playButton:hover{
+    transform:scale(1.05);
+}
+
+
+/* ================= ALBUM ================= */
+
+#albumScreen{
+    position:fixed;
+    inset:0;
+
+    display:none;
+
+    justify-content:center;
+    align-items:center;
+
+    background:#111;
+}
+
+
+/* ================= BOOK ================= */
+
+#book{
+    position:relative;
+
+    width:min(94vw,1400px);
+
+    /*
+        Original page:
+        2520 x 840
+
+        Ratio:
+        3 : 1
+    */
+
+    aspect-ratio:3 / 1;
+
+    perspective:3000px;
+
+    transform-style:preserve-3d;
+}
+
+
+/* ================= BACKGROUND ================= */
+
+#albumBase{
+    position:absolute;
+    inset:0;
+
+    width:100%;
+    height:100%;
+
+    background:white;
+
+    box-shadow:
+        0 15px 50px rgba(0,0,0,.7);
+}
+
+
+/* ================= PAGE ================= */
+
+.page{
+    position:absolute;
+
+    top:0;
+    right:0;
+
+    width:50%;
+    height:100%;
+
+    overflow:hidden;
+
+    background:white;
+
+    transform-origin:left center;
+
+    transform-style:preserve-3d;
 
     transition:
-        transform 0.9s cubic-bezier(.2,.7,.2,1);
+        transform 1.1s cubic-bezier(.2,.7,.2,1);
+
+    cursor:pointer;
+
+    backface-visibility:hidden;
+}
+
+
+/*
+    2520x840 image
+
+    Visible page:
+    1260x840
+
+    Image itself:
+    200% width
+
+    Therefore exact center fold.
+*/
+
+.page img{
+    position:absolute;
+
+    top:0;
+    left:0;
+
+    width:200%;
+    height:100%;
+
+    max-width:none;
+
+    object-fit:fill;
+
+    display:block;
+
+    user-select:none;
+
+    -webkit-user-drag:none;
+}
+
+
+/* CENTER FOLD SHADOW */
+
+.page::after{
+    content:"";
+
+    position:absolute;
+
+    left:0;
+    top:0;
+
+    width:3px;
+    height:100%;
+
+    background:
+        linear-gradient(
+            to right,
+            rgba(0,0,0,.40),
+            rgba(255,255,255,.20),
+            rgba(0,0,0,.25)
+        );
+
+    pointer-events:none;
+}
+
+
+/* TURN PAGE */
+
+.page.flipped{
+    transform:rotateY(-180deg);
+}
+
+
+/* ================= LOGO ================= */
+
+#albumLogo{
+    position:fixed;
+
+    top:18px;
+    left:18px;
+
+    width:100px;
+    height:auto;
+
+    max-height:100px;
+
+    object-fit:contain;
+
+    z-index:50000;
+
+    pointer-events:none;
+}
+
+
+/* ================= WHATSAPP ================= */
+
+#whatsapp{
+    position:fixed;
+
+    left:18px;
+    bottom:15px;
+
+    z-index:50000;
+
+    display:flex;
+    align-items:center;
+    gap:8px;
+
+    padding:9px 15px;
+
+    border-radius:30px;
+
+    background:rgba(0,0,0,.78);
+
+    color:white;
+
+    text-decoration:none;
+
+    font-size:15px;
 
     box-shadow:
-        0 8px 30px rgba(0,0,0,.45);
-
-    overflow: hidden;
-
-    backface-visibility: hidden;
+        0 5px 20px rgba(0,0,0,.35);
 }
 
-/*
-    12x18 page:
-    Ratio = 2:3
-*/
-.page.single {
-    aspect-ratio: 2 / 3;
+
+/* ================= PAGE COUNTER ================= */
+
+#counter{
+    position:fixed;
+
+    right:18px;
+    bottom:15px;
+
+    z-index:50000;
+
+    color:white;
+
+    background:rgba(0,0,0,.65);
+
+    padding:7px 13px;
+
+    border-radius:20px;
+
+    font-size:14px;
 }
 
-/*
-    12x36 spread:
-    Whole spread ratio = 1:3
 
-    But the spread is displayed as two
-    exact 12x18 halves.
-*/
-.spread {
-    position: absolute;
+/* ================= MOBILE ================= */
 
-    width: min(96vw, 1300px);
-    height: min(88vh, 950px);
+@media(max-width:700px){
 
-    display: flex;
+    #book{
+        width:96vw;
+    }
 
-    background: white;
+    #startLogo{
+        width:130px;
+    }
 
-    box-shadow:
-        0 8px 30px rgba(0,0,0,.45);
+    #playButton{
+        font-size:17px;
+        padding:14px 30px;
+    }
 
-    transform-style: preserve-3d;
-}
+    #albumLogo{
+        width:65px;
+        top:10px;
+        left:10px;
+    }
 
-/* Each half of 12x36 */
-.half {
-    width: 50%;
-    height: 100%;
-
-    position: relative;
-
-    overflow: hidden;
-
-    background: white;
-}
-
-/*
-    IMPORTANT:
-    Image is NEVER stretched.
-*/
-.half img,
-.page.single img {
-    width: 100%;
-    height: 100%;
-
-    object-fit: contain;
-
-    object-position: center center;
-
-    display: block;
-}
-
-/* Center folding line */
-.spread::after {
-    content: "";
-
-    position: absolute;
-
-    left: 50%;
-    top: 0;
-
-    width: 1px;
-    height: 100%;
-
-    background: rgba(0,0,0,.18);
-
-    transform: translateX(-50%);
-
-    pointer-events: none;
-}
-
-/* Page turn */
-.turning {
-    transform:
-        rotateY(-180deg);
-}
-
-/* Controls */
-#controls {
-    position: fixed;
-
-    left: 50%;
-    bottom: 20px;
-
-    transform: translateX(-50%);
-
-    z-index: 9999;
-
-    display: flex;
-    gap: 10px;
-}
-
-button {
-    border: none;
-
-    background: rgba(0,0,0,.75);
-    color: white;
-
-    padding: 12px 22px;
-
-    border-radius: 8px;
-
-    cursor: pointer;
-
-    font-size: 16px;
-}
-
-button:hover {
-    background: rgba(255,255,255,.2);
-}
-
-#pageNumber {
-    position: fixed;
-
-    top: 15px;
-    left: 50%;
-
-    transform: translateX(-50%);
-
-    color: white;
-
-    background: rgba(0,0,0,.65);
-
-    padding: 7px 15px;
-
-    border-radius: 20px;
-
-    z-index: 9999;
+    #whatsapp{
+        left:10px;
+        bottom:10px;
+        font-size:12px;
+        padding:7px 11px;
+    }
 }
 </style>
 </head>
 
+
 <body>
 
-<div id="book"></div>
 
-<div id="pageNumber">
-    Page 1
+<!-- =================================================
+     START SCREEN
+================================================= -->
+
+<div id="startScreen">
+
+    <img
+        id="startLogo"
+        src="logo.png"
+        alt="SRP Photography"
+    >
+
+    <button id="playButton">
+        ▶ PLAY ALBUM
+    </button>
+
 </div>
 
-<div id="controls">
-    <button onclick="previousPage()">◀ Previous</button>
-    <button onclick="nextPage()">Next ▶</button>
+
+
+<!-- =================================================
+     ALBUM SCREEN
+================================================= -->
+
+<div id="albumScreen">
+
+
+    <!-- LOGO -->
+
+    <img
+        id="albumLogo"
+        src="logo.png"
+        alt="SRP Photography"
+    >
+
+
+    <!-- BOOK -->
+
+    <div id="book">
+
+        <div id="albumBase"></div>
+
+    </div>
+
+
+    <!-- =================================================
+         WHATSAPP
+    ================================================= -->
+
+    <a
+        id="whatsapp"
+
+        href="https://wa.me/916262735390?text=Hello%20SRP%20Photography%2C%20I%20want%20to%20know%20about%20your%20wedding%20album."
+
+        target="_blank"
+
+        rel="noopener noreferrer"
+    >
+
+        💬
+
+        <span>
+            +91 6262735390
+        </span>
+
+    </a>
+
+
+    <!-- PAGE NUMBER -->
+
+    <div id="counter">
+        1 / 52
+    </div>
+
+
 </div>
+
+
+
+<!-- =================================================
+     BACKGROUND MUSIC
+
+     File name:
+     music.mp3
+================================================= -->
+
+<audio
+    id="music"
+    src="music.mp3"
+    loop
+    preload="auto">
+</audio>
+
+
 
 <script>
 
-/*
-=========================================================
-                    YOUR PAGES
-=========================================================
+/* =================================================
+   ALBUM FILES
 
-Put your page images here.
+   Automatically creates:
 
-IMPORTANT:
+   01 (1).jpg
+   01 (2).jpg
+   ...
+   01 (52).jpg
 
-12x18 = one image
+   All pages:
+   2520 x 840
+================================================= */
 
-12x36 = one WIDE image
+const pages = [];
 
-Example:
+for(let i = 1; i <= 52; i++){
 
-{
-    type: "single",
-    image: "pages/page1.jpg"
+    pages.push(
+        `01 (${i}).jpg`
+    );
+
 }
 
-and
 
-{
-    type: "spread",
-    image: "pages/page2-3.jpg"
-}
+/* =================================================
+   ELEMENTS
+================================================= */
 
-=========================================================
-*/
+const startScreen =
+    document.getElementById("startScreen");
 
-const pages = [
+const albumScreen =
+    document.getElementById("albumScreen");
 
-    {
-        type: "single",
-        image: "pages/page1.jpg"
-    },
+const playButton =
+    document.getElementById("playButton");
 
-    {
-        type: "spread",
-        image: "pages/page2-3.jpg"
-    },
+const music =
+    document.getElementById("music");
 
-    {
-        type: "spread",
-        image: "pages/page4-5.jpg"
-    },
+const book =
+    document.getElementById("book");
 
-    {
-        type: "single",
-        image: "pages/page6.jpg"
-    },
-
-    {
-        type: "spread",
-        image: "pages/page7-8.jpg"
-    }
-
-];
+const counter =
+    document.getElementById("counter");
 
 
-/*
-=========================================================
-                FLIPBOOK ENGINE
-=========================================================
-*/
-
-const book = document.getElementById("book");
-const pageNumber = document.getElementById("pageNumber");
+/* =================================================
+   CURRENT PAGE
+================================================= */
 
 let currentPage = 0;
-let busy = false;
 
 
-/*
----------------------------------------------------------
-Create Single 12x18 page
----------------------------------------------------------
-*/
+/* =================================================
+   CREATE PAGES
+================================================= */
 
-function createSinglePage(item, index) {
+function createPages(){
 
-    const page = document.createElement("div");
+    pages.forEach(
+        function(imageName,index){
 
-    page.className = "page single";
+            const page =
+                document.createElement("div");
 
-    page.dataset.index = index;
+            page.className = "page";
 
-    const img = document.createElement("img");
-
-    img.src = item.image;
-
-    img.draggable = false;
-
-    page.appendChild(img);
-
-    book.appendChild(page);
-
-    return page;
-}
+            page.dataset.index = index;
 
 
-/*
----------------------------------------------------------
-Create 12x36 spread
+            const image =
+                document.createElement("img");
 
-The image is split EXACTLY at 50%.
+            image.src = imageName;
 
-Left half = first 12x18
+            image.alt =
+                "Wedding Album Page " +
+                (index + 1);
 
-Right half = second 12x18
-
-No stretching.
-No cropping.
----------------------------------------------------------
-*/
-
-function createSpread(item, index) {
-
-    const spread = document.createElement("div");
-
-    spread.className = "spread";
-
-    spread.dataset.index = index;
+            image.draggable = false;
 
 
-    /*
-        LEFT HALF
-    */
+            page.appendChild(image);
 
-    const left = document.createElement("div");
-
-    left.className = "half";
-
-    const leftImg = document.createElement("img");
-
-    leftImg.src = item.image;
-
-    leftImg.draggable = false;
-
-    /*
-        The complete image is positioned
-        inside the half.
-
-        Important:
-        We use object-fit: cover ONLY here
-        because the image itself is being
-        split into two physical halves.
-
-        The image width is 200% of the half.
-    */
-
-    leftImg.style.width = "200%";
-    leftImg.style.maxWidth = "none";
-
-    leftImg.style.objectFit = "contain";
-
-    leftImg.style.objectPosition = "left center";
-
-    left.appendChild(leftImg);
+            book.appendChild(page);
 
 
-    /*
-        RIGHT HALF
-    */
+            /*
+                Page 1 front
+                Page 52 back
+            */
 
-    const right = document.createElement("div");
-
-    right.className = "half";
-
-    const rightImg = document.createElement("img");
-
-    rightImg.src = item.image;
-
-    rightImg.draggable = false;
-
-    rightImg.style.width = "200%";
-    rightImg.style.maxWidth = "none";
-
-    rightImg.style.objectFit = "contain";
-
-    rightImg.style.objectPosition = "right center";
-
-    right.appendChild(rightImg);
+            page.style.zIndex =
+                pages.length - index;
 
 
-    spread.appendChild(left);
-    spread.appendChild(right);
+            /*
+                CLICK RIGHT SIDE
+                NEXT PAGE
 
-    book.appendChild(spread);
+                CLICK LEFT SIDE
+                PREVIOUS PAGE
+            */
 
-    return spread;
-}
+            page.addEventListener(
+                "click",
+                function(event){
+
+                    const rect =
+                        book.getBoundingClientRect();
+
+                    const x =
+                        event.clientX -
+                        rect.left;
 
 
-/*
----------------------------------------------------------
-Build book
----------------------------------------------------------
-*/
+                    if(
+                        x >
+                        rect.width / 2
+                    ){
 
-function buildBook() {
+                        nextPage();
 
-    book.innerHTML = "";
+                    }
+                    else{
 
-    pages.forEach((item, index) => {
+                        previousPage();
 
-        if (item.type === "single") {
+                    }
 
-            createSinglePage(item, index);
+                }
+            );
 
         }
+    );
 
-        else if (item.type === "spread") {
 
-            createSpread(item, index);
-
-        }
-
-    });
-
-    updatePages();
+    updateCounter();
 
 }
 
 
-/*
----------------------------------------------------------
-Update visible page
----------------------------------------------------------
-*/
+/* =================================================
+   PLAY ALBUM
+================================================= */
 
-function updatePages() {
+playButton.addEventListener(
+    "click",
+    function(){
 
-    const allPages =
-        document.querySelectorAll(".page, .spread");
+        startScreen.style.display =
+            "none";
 
-    allPages.forEach((page, index) => {
-
-        page.style.zIndex =
-            pages.length - index;
-
-        page.style.display =
-            index <= currentPage
-                ? "flex"
-                : "none";
-
-    });
-
-    pageNumber.innerText =
-        "Page " + (currentPage + 1)
-        + " / " + pages.length;
-}
+        albumScreen.style.display =
+            "flex";
 
 
-/*
----------------------------------------------------------
-NEXT
----------------------------------------------------------
-*/
+        /*
+            Music starts because
+            user clicked PLAY.
+        */
 
-function nextPage() {
+        music.play().catch(
+            function(error){
 
-    if (busy) return;
+                console.log(
+                    "Music error:",
+                    error
+                );
 
-    if (currentPage >= pages.length - 1) {
+            }
+        );
+
+    }
+);
+
+
+/* =================================================
+   NEXT PAGE
+================================================= */
+
+function nextPage(){
+
+    if(
+        currentPage >=
+        pages.length
+    ){
+
         return;
+
     }
 
-    busy = true;
 
-    const allPages =
-        document.querySelectorAll(".page, .spread");
+    const page =
+        document.querySelector(
+            '.page[data-index="' +
+            currentPage +
+            '"]'
+        );
 
-    const current =
-        allPages[currentPage];
 
-    current.style.display = "flex";
+    if(!page){
 
-    current.classList.add("turning");
+        return;
 
-    setTimeout(() => {
+    }
 
-        currentPage++;
 
-        updatePages();
+    page.classList.add("flipped");
 
-        busy = false;
+    currentPage++;
 
-    }, 900);
+    updateCounter();
+
 }
 
 
-/*
----------------------------------------------------------
-PREVIOUS
----------------------------------------------------------
-*/
+/* =================================================
+   PREVIOUS PAGE
+================================================= */
 
-function previousPage() {
+function previousPage(){
 
-    if (busy) return;
+    if(
+        currentPage <= 0
+    ){
 
-    if (currentPage <= 0) {
         return;
+
     }
 
-    busy = true;
 
     currentPage--;
 
-    const allPages =
-        document.querySelectorAll(".page, .spread");
 
-    const previous =
-        allPages[currentPage];
+    const page =
+        document.querySelector(
+            '.page[data-index="' +
+            currentPage +
+            '"]'
+        );
 
-    previous.style.display = "flex";
 
-    previous.classList.remove("turning");
+    if(!page){
 
-    updatePages();
+        return;
 
-    setTimeout(() => {
+    }
 
-        busy = false;
 
-    }, 900);
+    page.classList.remove("flipped");
+
+    updateCounter();
+
 }
 
 
-/*
----------------------------------------------------------
-Keyboard
----------------------------------------------------------
-*/
+/* =================================================
+   COUNTER
+================================================= */
 
-document.addEventListener("keydown", function(e) {
+function updateCounter(){
 
-    if (e.key === "ArrowRight") {
+    let number =
+        currentPage + 1;
 
-        nextPage();
+
+    if(
+        number > pages.length
+    ){
+
+        number =
+            pages.length;
 
     }
 
-    if (e.key === "ArrowLeft") {
 
-        previousPage();
+    counter.innerText =
+        number +
+        " / " +
+        pages.length;
+
+}
+
+
+/* =================================================
+   KEYBOARD
+================================================= */
+
+document.addEventListener(
+    "keydown",
+    function(event){
+
+        if(
+            event.key === "ArrowRight"
+        ){
+
+            nextPage();
+
+        }
+
+
+        if(
+            event.key === "ArrowLeft"
+        ){
+
+            previousPage();
+
+        }
 
     }
+);
 
-});
+
+/* =================================================
+   MOBILE SWIPE
+================================================= */
+
+let touchStartX = 0;
+
+let touchEndX = 0;
 
 
-/*
----------------------------------------------------------
-START
----------------------------------------------------------
-*/
+document.addEventListener(
+    "touchstart",
+    function(event){
 
-buildBook();
+        touchStartX =
+            event.changedTouches[0].screenX;
+
+    },
+    {
+        passive:true
+    }
+);
+
+
+document.addEventListener(
+    "touchend",
+    function(event){
+
+        touchEndX =
+            event.changedTouches[0].screenX;
+
+
+        const difference =
+            touchStartX -
+            touchEndX;
+
+
+        if(
+            Math.abs(difference) < 50
+        ){
+
+            return;
+
+        }
+
+
+        if(
+            difference > 0
+        ){
+
+            nextPage();
+
+        }
+        else{
+
+            previousPage();
+
+        }
+
+    },
+    {
+        passive:true
+    }
+);
+
+
+/* =================================================
+   START
+================================================= */
+
+createPages();
 
 </script>
 
