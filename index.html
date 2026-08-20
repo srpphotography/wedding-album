@@ -26,20 +26,19 @@ html,body{
     align-items:center;
     justify-content:center;
     flex-direction:column;
-    gap:15px;
+    gap:16px;
     text-align:center;
 }
 
 #logo{
-    width:110px;
-    height:110px;
+    width:120px;
+    height:120px;
     object-fit:contain;
-    border-radius:50%;
 }
 
 #start button{
-    font-size:19px;
-    padding:14px 28px;
+    font-size:20px;
+    padding:14px 30px;
     border:0;
     border-radius:10px;
     cursor:pointer;
@@ -48,7 +47,6 @@ html,body{
 #loading{
     display:none;
     font-size:16px;
-    opacity:.9;
 }
 
 #app{
@@ -61,26 +59,21 @@ html,body{
 
 #book{
     width:min(94vw,1200px);
-    height:min(86vh,900px);
+    height:min(90vh,900px);
 }
 
-#contact{
+#whatsapp{
     position:fixed;
     right:15px;
     bottom:15px;
-    z-index:15;
+    z-index:30;
     background:#25D366;
     color:white;
-    padding:10px 15px;
-    border-radius:25px;
     text-decoration:none;
+    padding:11px 17px;
+    border-radius:30px;
     font-weight:bold;
     box-shadow:0 3px 12px rgba(0,0,0,.4);
-}
-
-canvas{
-    max-width:100%;
-    max-height:100%;
 }
 </style>
 </head>
@@ -109,112 +102,179 @@ canvas{
     <div id="book"></div>
 </div>
 
-<a id="contact"
+<a id="whatsapp"
    href="https://wa.me/916262735390"
    target="_blank">
    💬 WhatsApp
 </a>
 
-<audio id="music" preload="auto">
+<audio id="music" loop preload="auto">
     <source src="music.mp3" type="audio/mpeg">
 </audio>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
 
 <script>
 
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-
 const start = document.getElementById("start");
-const btn = document.getElementById("startBtn");
+const startBtn = document.getElementById("startBtn");
 const loading = document.getElementById("loading");
-const music = document.getElementById("music");
 const book = document.getElementById("book");
+const music = document.getElementById("music");
 
-music.loop = true;
+const GITHUB_API =
+"https://api.github.com/repos/srpphotography/wedding-album/contents/pages";
 
-music.addEventListener("ended", function(){
-    music.currentTime = 0;
-    music.play().catch(()=>{});
-});
 
-async function renderPDF(){
+startBtn.addEventListener("click", async function(){
 
+    startBtn.style.display = "none";
     loading.style.display = "block";
-    btn.style.display = "none";
+
+    loading.innerText = "Album starting...";
+
+    /* Music */
+    try{
+        await music.play();
+    }catch(e){}
 
     try{
 
-        const pdf = await pdfjsLib
-            .getDocument("album.pdf")
-            .promise;
+        /* GitHub se saari JPG files automatically lena */
+
+        const response = await fetch(GITHUB_API);
+
+        if(!response.ok){
+            throw new Error("Pages folder नहीं मिला");
+        }
+
+        const files = await response.json();
+
+        const images = files
+            .filter(file =>
+                file.type === "file" &&
+                /\.(jpg|jpeg|png|webp)$/i.test(file.name)
+            )
+            .sort((a,b) =>
+                a.name.localeCompare(
+                    b.name,
+                    undefined,
+                    {
+                        numeric:true,
+                        sensitivity:"base"
+                    }
+                )
+            );
+
+        if(images.length === 0){
+            throw new Error("JPG images नहीं मिलीं");
+        }
+
+        loading.innerText =
+            "Album तैयार हो रहा है... " +
+            images.length + " photos";
+
+        /*
+          हर image को पहले canvas में डालेंगे।
+          इससे original ratio preserve रहेगा।
+        */
 
         const pages = [];
 
-        let pageWidth = 600;
-        let pageHeight = 900;
-
-        for(let i=1;i<=pdf.numPages;i++){
+        for(let i=0;i<images.length;i++){
 
             loading.innerText =
                 "Album loading... " +
-                i + " / " + pdf.numPages;
+                (i+1) + " / " +
+                images.length;
 
-            const page = await pdf.getPage(i);
+            const img = new Image();
 
-            const original =
-                page.getViewport({scale:1});
+            img.src = images[i].download_url;
 
-            const ratio =
-                original.height / original.width;
+            await new Promise((resolve,reject)=>{
 
-            if(i === 1){
-                pageWidth = 600;
-                pageHeight =
-                    Math.round(pageWidth * ratio);
-            }
+                img.onload = resolve;
+                img.onerror = reject;
 
-            const viewport =
-                page.getViewport({scale:1.1});
+            });
+
+            /*
+              2:3 album page के अंदर image को
+              बिना stretch किए fit करना।
+            */
 
             const canvas =
                 document.createElement("canvas");
 
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
+            const W = 600;
+            const H = 900;
 
-            await page.render({
-                canvasContext:
-                    canvas.getContext("2d"),
-                viewport:viewport
-            }).promise;
+            canvas.width = W;
+            canvas.height = H;
+
+            const ctx = canvas.getContext("2d");
+
+            ctx.fillStyle = "#111";
+            ctx.fillRect(0,0,W,H);
+
+            const imageRatio =
+                img.width / img.height;
+
+            const boxRatio = W / H;
+
+            let drawW;
+            let drawH;
+
+            if(imageRatio > boxRatio){
+
+                drawW = W;
+                drawH = W / imageRatio;
+
+            }else{
+
+                drawH = H;
+                drawW = H * imageRatio;
+
+            }
+
+            const x = (W - drawW) / 2;
+            const y = (H - drawH) / 2;
+
+            ctx.drawImage(
+                img,
+                x,
+                y,
+                drawW,
+                drawH
+            );
 
             pages.push(
                 canvas.toDataURL(
                     "image/jpeg",
-                    0.78
+                    0.82
                 )
             );
         }
 
+
         loading.innerText =
-            "Album तैयार हो रहा है...";
+            "Flipbook तैयार हो रहा है...";
+
 
         const flip =
             new St.PageFlip(book,{
-                width:pageWidth,
-                height:pageHeight,
+
+                width:600,
+                height:900,
 
                 size:"stretch",
 
                 minWidth:280,
-                maxWidth:1000,
+                maxWidth:900,
 
                 minHeight:420,
-                maxHeight:1400,
+                maxHeight:1350,
 
                 showCover:true,
 
@@ -225,29 +285,24 @@ async function renderPDF(){
                 maxShadowOpacity:.5,
 
                 flippingTime:650
+
             });
+
 
         flip.loadFromImages(pages);
 
-        start.style.display="none";
+
+        start.style.display = "none";
+
 
     }catch(error){
 
         loading.innerText =
-            "Album load error: " +
-            error.message;
+            "Error: " + error.message;
 
         console.error(error);
+
     }
-}
-
-btn.addEventListener("click",async()=>{
-
-    try{
-        await music.play();
-    }catch(e){}
-
-    await renderPDF();
 
 });
 
