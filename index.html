@@ -52,8 +52,8 @@ html,body{
 }
 
 #book{
-    width:min(94vw,1100px);
-    height:min(86vh,760px);
+    width:min(94vw,1200px);
+    height:min(86vh,900px);
 }
 
 canvas{
@@ -79,10 +79,8 @@ canvas{
     <source src="music.mp3" type="audio/mpeg">
 </audio>
 
-<!-- PDF.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
-<!-- Page Flip -->
 <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
 
 <script>
@@ -107,12 +105,28 @@ async function renderPDF(){
 
         const pages = [];
 
+        let pageWidth = 600;
+        let pageHeight = 900;
+
         for(let i = 1; i <= pdf.numPages; i++){
 
             loading.innerText =
                 "Album loading... " + i + " / " + pdf.numPages;
 
             const page = await pdf.getPage(i);
+
+            const originalViewport = page.getViewport({
+                scale: 1
+            });
+
+            const ratio =
+                originalViewport.height /
+                originalViewport.width;
+
+            if(i === 1){
+                pageWidth = 600;
+                pageHeight = Math.round(pageWidth * ratio);
+            }
 
             const viewport = page.getViewport({
                 scale: 1.2
@@ -136,15 +150,16 @@ async function renderPDF(){
         loading.innerText = "Album तैयार हो रहा है...";
 
         const flip = new St.PageFlip(book,{
-            width:600,
-            height:800,
+            width:pageWidth,
+            height:pageHeight,
+
             size:"stretch",
 
             minWidth:280,
-            maxWidth:900,
+            maxWidth:1000,
 
-            minHeight:380,
-            maxHeight:1200,
+            minHeight:420,
+            maxHeight:1400,
 
             showCover:true,
             mobileScrollSupport:false,
