@@ -23,9 +23,7 @@ html,body{
 }
 
 
-/* =====================================================
-   START SCREEN
-===================================================== */
+/* ================= START SCREEN ================= */
 
 #startScreen{
     position:fixed;
@@ -44,7 +42,6 @@ html,body{
     width:190px;
     max-width:60vw;
     max-height:190px;
-
     object-fit:contain;
 
     margin-bottom:35px;
@@ -74,9 +71,7 @@ html,body{
 }
 
 
-/* =====================================================
-   ALBUM SCREEN
-===================================================== */
+/* ================= ALBUM ================= */
 
 #albumScreen{
     position:fixed;
@@ -91,15 +86,7 @@ html,body{
 }
 
 
-/* =====================================================
-   BOOK
-
-   Original image:
-   2520 x 840
-
-   Ratio:
-   3 : 1
-===================================================== */
+/* ================= BOOK ================= */
 
 #book{
     position:relative;
@@ -117,14 +104,10 @@ html,body{
 }
 
 
-/* =====================================================
-   CURRENT COMPLETE SPREAD
-===================================================== */
+/* ================= CURRENT SPREAD ================= */
 
 #currentSpread{
-
     position:absolute;
-
     inset:0;
 
     width:100%;
@@ -138,7 +121,6 @@ html,body{
 }
 
 #currentImage{
-
     width:100%;
     height:100%;
 
@@ -147,23 +129,47 @@ html,body{
     object-fit:fill;
 
     user-select:none;
-
     -webkit-user-drag:none;
 }
 
 
-/* =====================================================
-   FLIPPING RIGHT HALF
+/* ================= NEXT PAGE BEHIND ================= */
 
-   Original:
-   2520 x 840
+/*
+   Next complete spread is placed behind
+   the current page.
+*/
 
-   Right half:
-   1260 x 840
-===================================================== */
+#nextSpread{
+    position:absolute;
+    inset:0;
+
+    width:100%;
+    height:100%;
+
+    overflow:hidden;
+
+    background:white;
+
+    z-index:5;
+}
+
+#nextImage{
+    width:100%;
+    height:100%;
+
+    display:block;
+
+    object-fit:fill;
+
+    user-select:none;
+    -webkit-user-drag:none;
+}
+
+
+/* ================= FLIP SHEET ================= */
 
 #flipSheet{
-
     position:absolute;
 
     top:0;
@@ -185,14 +191,10 @@ html,body{
 }
 
 
-/* =====================================================
-   FRONT
-===================================================== */
+/* ================= FRONT ================= */
 
 #flipFront{
-
     position:absolute;
-
     inset:0;
 
     width:100%;
@@ -203,13 +205,11 @@ html,body{
     background:white;
 
     backface-visibility:hidden;
-
     -webkit-backface-visibility:hidden;
 }
 
 
 #frontImage{
-
     position:absolute;
 
     top:0;
@@ -225,21 +225,14 @@ html,body{
     display:block;
 
     user-select:none;
-
     -webkit-user-drag:none;
 }
 
 
-/* =====================================================
-   BACK
-
-   Shows next page left half
-===================================================== */
+/* ================= BACK ================= */
 
 #flipBack{
-
     position:absolute;
-
     inset:0;
 
     width:100%;
@@ -252,13 +245,11 @@ html,body{
     transform:rotateY(180deg);
 
     backface-visibility:hidden;
-
     -webkit-backface-visibility:hidden;
 }
 
 
 #backImage{
-
     position:absolute;
 
     top:0;
@@ -274,17 +265,13 @@ html,body{
     display:block;
 
     user-select:none;
-
     -webkit-user-drag:none;
 }
 
 
-/* =====================================================
-   CENTER FOLD SHADOW
-===================================================== */
+/* ================= FOLD SHADOW ================= */
 
 #flipSheet::after{
-
     content:"";
 
     position:absolute;
@@ -309,22 +296,16 @@ html,body{
 }
 
 
-/* =====================================================
-   FLIP
-===================================================== */
+/* ================= FLIPPED ================= */
 
 #flipSheet.flipped{
-
     transform:rotateY(-180deg);
 }
 
 
-/* =====================================================
-   WHATSAPP
-===================================================== */
+/* ================= WHATSAPP ================= */
 
 #whatsapp{
-
     position:fixed;
 
     left:18px;
@@ -333,9 +314,7 @@ html,body{
     z-index:5000;
 
     display:flex;
-
     align-items:center;
-
     gap:8px;
 
     padding:9px 15px;
@@ -355,12 +334,9 @@ html,body{
 }
 
 
-/* =====================================================
-   PAGE COUNTER
-===================================================== */
+/* ================= COUNTER ================= */
 
 #counter{
-
     position:fixed;
 
     right:18px;
@@ -380,9 +356,7 @@ html,body{
 }
 
 
-/* =====================================================
-   MOBILE
-===================================================== */
+/* ================= MOBILE ================= */
 
 @media(max-width:700px){
 
@@ -396,7 +370,6 @@ html,body{
 
     #playButton{
         font-size:17px;
-
         padding:14px 30px;
     }
 
@@ -418,11 +391,9 @@ html,body{
 <body>
 
 
-<!-- =====================================================
+<!-- =================================================
      START SCREEN
-
-     LOGO ONLY HERE
-===================================================== -->
+================================================= -->
 
 <div id="startScreen">
 
@@ -440,11 +411,9 @@ html,body{
 
 
 
-<!-- =====================================================
+<!-- =================================================
      ALBUM
-     
-     NO LOGO INSIDE ALBUM
-===================================================== -->
+================================================= -->
 
 <div id="albumScreen">
 
@@ -452,23 +421,33 @@ html,body{
     <div id="book">
 
 
-        <!-- CURRENT COMPLETE 2520x840 IMAGE -->
+        <!-- CURRENT PAGE -->
 
         <div id="currentSpread">
 
             <img
                 id="currentImage"
                 src=""
-                alt="Wedding Album"
+                alt=""
             >
 
         </div>
 
 
+        <!-- NEXT PAGE BEHIND -->
 
-        <!-- =================================================
-             RIGHT 1260px FLIPPING SHEET
-        ================================================== -->
+        <div id="nextSpread">
+
+            <img
+                id="nextImage"
+                src=""
+                alt=""
+            >
+
+        </div>
+
+
+        <!-- FLIPPING RIGHT HALF -->
 
         <div id="flipSheet">
 
@@ -505,10 +484,7 @@ html,body{
     </div>
 
 
-
-    <!-- =================================================
-         WHATSAPP
-    ================================================== -->
+    <!-- WHATSAPP -->
 
     <a
         id="whatsapp"
@@ -525,13 +501,10 @@ html,body{
     </a>
 
 
-
-    <!-- PAGE NUMBER -->
+    <!-- COUNTER -->
 
     <div id="counter">
-
         1 / 52
-
     </div>
 
 
@@ -539,9 +512,9 @@ html,body{
 
 
 
-<!-- =====================================================
-     BACKGROUND MUSIC
-===================================================== -->
+<!-- =================================================
+     MUSIC
+================================================= -->
 
 <audio
     id="music"
@@ -555,14 +528,9 @@ html,body{
 <script>
 
 
-/* =====================================================
-   ALBUM FILES
-
-   01 (1).jpg
-   01 (2).jpg
-   ...
-   01 (52).jpg
-===================================================== */
+/* =================================================
+   52 FILES
+================================================= */
 
 const pages = [];
 
@@ -575,9 +543,9 @@ for(let i = 1; i <= 52; i++){
 }
 
 
-/* =====================================================
+/* =================================================
    ELEMENTS
-===================================================== */
+================================================= */
 
 const startScreen =
     document.getElementById(
@@ -602,6 +570,11 @@ const music =
 const currentImage =
     document.getElementById(
         "currentImage"
+    );
+
+const nextImage =
+    document.getElementById(
+        "nextImage"
     );
 
 const frontImage =
@@ -630,33 +603,23 @@ const counter =
     );
 
 
-/* =====================================================
-   CURRENT PAGE
-===================================================== */
+/* =================================================
+   STATE
+================================================= */
 
 let currentPage = 0;
-
-
-/* =====================================================
-   ANIMATION LOCK
-
-   Prevents double-click / double-key problems.
-===================================================== */
 
 let isAnimating = false;
 
 
-/* =====================================================
-   SHOW CURRENT PAGE
-===================================================== */
+/* =================================================
+   PREPARE PAGE
+================================================= */
 
-function showPage(index){
-
-    currentPage = index;
-
+function preparePage(index){
 
     /*
-       Complete 2520x840 spread
+       Current complete spread
     */
 
     currentImage.src =
@@ -664,8 +627,7 @@ function showPage(index){
 
 
     /*
-       Front of flipping sheet
-       = current page RIGHT half
+       Current page right half
     */
 
     frontImage.src =
@@ -673,8 +635,7 @@ function showPage(index){
 
 
     /*
-       Back of flipping sheet
-       = next page LEFT half
+       Next complete spread behind
     */
 
     if(
@@ -682,11 +643,17 @@ function showPage(index){
         pages.length - 1
     ){
 
+        nextImage.src =
+            pages[index + 1];
+
         backImage.src =
             pages[index + 1];
 
     }
     else{
+
+        nextImage.src =
+            pages[index];
 
         backImage.src =
             pages[index];
@@ -694,204 +661,14 @@ function showPage(index){
     }
 
 
-    /*
-       Always reset sheet.
-    */
-
-    flipSheet.style.transition =
-        "none";
-
-    flipSheet.classList.remove(
-        "flipped"
-    );
-
-    void flipSheet.offsetWidth;
-
-    flipSheet.style.transition =
-        "transform 1.15s cubic-bezier(.22,.61,.36,1)";
-
-
     updateCounter();
 
 }
 
 
-/* =====================================================
-   NEXT PAGE
-===================================================== */
-
-function nextPage(){
-
-    if(isAnimating){
-
-        return;
-
-    }
-
-
-    if(
-        currentPage >=
-        pages.length - 1
-    ){
-
-        return;
-
-    }
-
-
-    isAnimating = true;
-
-
-    /*
-       Prepare next page.
-    */
-
-    backImage.src =
-        pages[currentPage + 1];
-
-
-    /*
-       Start flip.
-    */
-
-    flipSheet.classList.add(
-        "flipped"
-    );
-
-
-    /*
-       Wait for the complete animation.
-    */
-
-    setTimeout(
-        function(){
-
-            currentPage++;
-
-
-            /*
-               New complete spread
-            */
-
-            currentImage.src =
-                pages[currentPage];
-
-
-            /*
-               Prepare front
-            */
-
-            frontImage.src =
-                pages[currentPage];
-
-
-            /*
-               Prepare next back
-            */
-
-            if(
-                currentPage <
-                pages.length - 1
-            ){
-
-                backImage.src =
-                    pages[currentPage + 1];
-
-            }
-            else{
-
-                backImage.src =
-                    pages[currentPage];
-
-            }
-
-
-            /*
-               IMPORTANT:
-
-               Reset flip WITHOUT animation.
-            */
-
-            flipSheet.style.transition =
-                "none";
-
-            flipSheet.classList.remove(
-                "flipped"
-            );
-
-            void flipSheet.offsetWidth;
-
-
-            /*
-               Restore animation.
-            */
-
-            flipSheet.style.transition =
-                "transform 1.15s cubic-bezier(.22,.61,.36,1)";
-
-
-            updateCounter();
-
-
-            isAnimating = false;
-
-        },
-        1150
-    );
-
-}
-
-
-/* =====================================================
-   PREVIOUS PAGE
-===================================================== */
-
-function previousPage(){
-
-    if(isAnimating){
-
-        return;
-
-    }
-
-
-    if(currentPage <= 0){
-
-        return;
-
-    }
-
-
-    /*
-       Go directly to previous complete spread.
-
-       No duplicate page.
-    */
-
-    showPage(
-        currentPage - 1
-    );
-
-}
-
-
-/* =====================================================
-   COUNTER
-===================================================== */
-
-function updateCounter(){
-
-    counter.innerText =
-        (currentPage + 1)
-        + " / "
-        + pages.length;
-
-}
-
-
-/* =====================================================
-   PLAY ALBUM
-===================================================== */
+/* =================================================
+   START
+================================================= */
 
 playButton.addEventListener(
     "click",
@@ -903,17 +680,14 @@ playButton.addEventListener(
         albumScreen.style.display =
             "flex";
 
+        currentPage = 0;
 
-        /*
-           Start at Page 1
-        */
+        flipSheet.classList.remove(
+            "flipped"
+        );
 
-        showPage(0);
+        preparePage(0);
 
-
-        /*
-           Start music
-        */
 
         music.play().catch(
             function(error){
@@ -930,18 +704,185 @@ playButton.addEventListener(
 );
 
 
-/* =====================================================
+/* =================================================
+   NEXT PAGE
+================================================= */
+
+function nextPage(){
+
+    if(isAnimating){
+        return;
+    }
+
+
+    if(
+        currentPage >=
+        pages.length - 1
+    ){
+        return;
+    }
+
+
+    isAnimating = true;
+
+
+    /*
+       The next complete page is ALREADY
+       behind the current page.
+
+       So as the right half flips,
+       the next page appears immediately.
+    */
+
+    flipSheet.classList.add(
+        "flipped"
+    );
+
+
+    /*
+       Animation finished.
+    */
+
+    flipSheet.addEventListener(
+        "transitionend",
+        finishNextPage,
+        {
+            once:true
+        }
+    );
+
+}
+
+
+/* =================================================
+   FINISH NEXT
+================================================= */
+
+function finishNextPage(){
+
+    currentPage++;
+
+
+    /*
+       New page becomes the current
+       complete spread.
+    */
+
+    currentImage.src =
+        pages[currentPage];
+
+
+    /*
+       Prepare flipping sheet for next turn.
+    */
+
+    frontImage.src =
+        pages[currentPage];
+
+
+    if(
+        currentPage <
+        pages.length - 1
+    ){
+
+        nextImage.src =
+            pages[currentPage + 1];
+
+        backImage.src =
+            pages[currentPage + 1];
+
+    }
+    else{
+
+        nextImage.src =
+            pages[currentPage];
+
+        backImage.src =
+            pages[currentPage];
+
+    }
+
+
+    /*
+       Reset flip WITHOUT animation.
+    */
+
+    flipSheet.style.transition =
+        "none";
+
+    flipSheet.classList.remove(
+        "flipped"
+    );
+
+    void flipSheet.offsetWidth;
+
+
+    /*
+       Restore animation.
+    */
+
+    flipSheet.style.transition =
+        "transform 1.15s cubic-bezier(.22,.61,.36,1)";
+
+
+    updateCounter();
+
+
+    isAnimating = false;
+
+}
+
+
+/* =================================================
+   PREVIOUS
+================================================= */
+
+function previousPage(){
+
+    if(isAnimating){
+        return;
+    }
+
+
+    if(currentPage <= 0){
+        return;
+    }
+
+
+    currentPage--;
+
+
+    preparePage(
+        currentPage
+    );
+
+}
+
+
+/* =================================================
+   COUNTER
+================================================= */
+
+function updateCounter(){
+
+    counter.innerText =
+        (currentPage + 1)
+        + " / "
+        + pages.length;
+
+}
+
+
+/* =================================================
    RIGHT / LEFT CLICK
-===================================================== */
+================================================= */
 
 book.addEventListener(
     "click",
     function(event){
 
         if(isAnimating){
-
             return;
-
         }
 
 
@@ -954,10 +895,6 @@ book.addEventListener(
             rect.left;
 
 
-        /*
-           RIGHT HALF = NEXT
-        */
-
         if(
             x >
             rect.width / 2
@@ -966,12 +903,6 @@ book.addEventListener(
             nextPage();
 
         }
-
-
-        /*
-           LEFT HALF = PREVIOUS
-        */
-
         else{
 
             previousPage();
@@ -982,9 +913,9 @@ book.addEventListener(
 );
 
 
-/* =====================================================
+/* =================================================
    KEYBOARD
-===================================================== */
+================================================= */
 
 document.addEventListener(
     "keydown",
@@ -1017,9 +948,9 @@ document.addEventListener(
 );
 
 
-/* =====================================================
-   TOUCH SWIPE
-===================================================== */
+/* =================================================
+   SWIPE
+================================================= */
 
 let touchStartX = 0;
 
@@ -1058,9 +989,7 @@ document.addEventListener(
         if(
             Math.abs(distance) < 50
         ){
-
             return;
-
         }
 
 
@@ -1082,9 +1011,9 @@ document.addEventListener(
 );
 
 
-/* =====================================================
-   INITIAL STATE
-===================================================== */
+/* =================================================
+   INITIAL
+================================================= */
 
 updateCounter();
 
