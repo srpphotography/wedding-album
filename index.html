@@ -7,84 +7,225 @@
 <title>Wedding Album</title>
 
 <style>
+
+*{
+    box-sizing:border-box;
+}
+
 html,body{
     margin:0;
     width:100%;
     height:100%;
     overflow:hidden;
-    background:#111;
     font-family:Arial,sans-serif;
 }
+
+/* ALBUM BACKGROUND */
+
+body{
+    background:#111 url("background.jpg") center center / cover no-repeat fixed;
+}
+
+/* DARK OVERLAY */
+
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.35);
+    z-index:0;
+}
+
+/* START SCREEN */
 
 #start{
     position:fixed;
     inset:0;
-    z-index:20;
-    background:rgba(0,0,0,.94);
+    z-index:50;
+
+    background:rgba(0,0,0,.90);
+
     color:white;
+
     display:flex;
     align-items:center;
     justify-content:center;
     flex-direction:column;
+
     gap:16px;
+
     text-align:center;
 }
 
-#logo{
-    width:120px;
-    height:120px;
+#startLogo{
+    width:140px;
+    height:140px;
+
     object-fit:contain;
+
+    border-radius:50%;
 }
 
-#start button{
+#startTitle{
+    font-size:30px;
+    font-weight:bold;
+}
+
+#startBtn{
     font-size:20px;
+
     padding:14px 30px;
+
     border:0;
-    border-radius:10px;
+    border-radius:12px;
+
     cursor:pointer;
 }
 
 #loading{
     display:none;
     font-size:16px;
+    opacity:.9;
 }
 
+/* ALBUM AREA */
+
 #app{
+    position:relative;
+    z-index:5;
+
     width:100%;
     height:100%;
+
     display:flex;
+
     align-items:center;
     justify-content:center;
 }
 
 #book{
-    width:min(94vw,1200px);
-    height:min(90vh,900px);
+    width:min(90vw,1200px);
+    height:min(88vh,900px);
 }
+
+/* FIXED LOGO */
+
+#cornerLogo{
+    position:fixed;
+
+    left:15px;
+    top:15px;
+
+    width:75px;
+    height:75px;
+
+    object-fit:contain;
+
+    z-index:100;
+
+    display:none;
+
+    filter:drop-shadow(0 3px 8px rgba(0,0,0,.7));
+
+    pointer-events:none;
+}
+
+/* WHATSAPP */
 
 #whatsapp{
     position:fixed;
+
     right:15px;
     bottom:15px;
-    z-index:30;
+
+    z-index:100;
+
+    display:none;
+
+    align-items:center;
+    gap:8px;
+
     background:#25D366;
+
     color:white;
+
     text-decoration:none;
-    padding:11px 17px;
+
+    padding:10px 15px;
+
     border-radius:30px;
+
+    font-size:15px;
     font-weight:bold;
-    box-shadow:0 3px 12px rgba(0,0,0,.4);
+
+    box-shadow:0 4px 14px rgba(0,0,0,.5);
+
+    transition:.2s;
 }
+
+#whatsapp:hover{
+    transform:scale(1.05);
+}
+
+#waIcon{
+    font-size:22px;
+}
+
+/* MOBILE */
+
+@media(max-width:600px){
+
+    #startLogo{
+        width:110px;
+        height:110px;
+    }
+
+    #startTitle{
+        font-size:24px;
+    }
+
+    #cornerLogo{
+        width:55px;
+        height:55px;
+
+        left:8px;
+        top:8px;
+    }
+
+    #whatsapp{
+        right:8px;
+        bottom:8px;
+
+        padding:8px 12px;
+
+        font-size:12px;
+    }
+
+    #waIcon{
+        font-size:19px;
+    }
+
+    #book{
+        width:96vw;
+        height:86vh;
+    }
+}
+
 </style>
 </head>
 
 <body>
 
+<!-- START SCREEN -->
+
 <div id="start">
 
-    <img id="logo" src="logo.png" alt="Logo">
+    <img
+        id="startLogo"
+        src="logo.png"
+        alt="SRP Photography">
 
-    <div style="font-size:28px;font-weight:bold;">
+    <div id="startTitle">
         📖 Wedding Album
     </div>
 
@@ -98,213 +239,276 @@ html,body{
 
 </div>
 
+
+<!-- FIXED LOGO -->
+
+<img
+    id="cornerLogo"
+    src="logo.png"
+    alt="SRP Photography">
+
+
+<!-- ALBUM -->
+
 <div id="app">
+
     <div id="book"></div>
+
 </div>
 
-<a id="whatsapp"
-   href="https://wa.me/916262735390"
-   target="_blank">
-   💬 WhatsApp
+
+<!-- WHATSAPP -->
+
+<a
+    id="whatsapp"
+    href="https://wa.me/916262735390"
+    target="_blank">
+
+    <span id="waIcon">💬</span>
+
+    <span>
+        +91 62627 35390
+    </span>
+
 </a>
 
+
+<!-- MUSIC -->
+
 <audio id="music" loop preload="auto">
-    <source src="music.mp3" type="audio/mpeg">
+
+    <source
+        src="music.mp3"
+        type="audio/mpeg">
+
 </audio>
+
+
+<!-- PAGE FLIP -->
 
 <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
 
+
 <script>
 
-const start = document.getElementById("start");
-const startBtn = document.getElementById("startBtn");
-const loading = document.getElementById("loading");
-const book = document.getElementById("book");
-const music = document.getElementById("music");
+const start =
+    document.getElementById("start");
+
+const startBtn =
+    document.getElementById("startBtn");
+
+const loading =
+    document.getElementById("loading");
+
+const book =
+    document.getElementById("book");
+
+const music =
+    document.getElementById("music");
+
+const cornerLogo =
+    document.getElementById("cornerLogo");
+
+const whatsapp =
+    document.getElementById("whatsapp");
+
+
+/*
+    GitHub Pages folder
+*/
 
 const GITHUB_API =
 "https://api.github.com/repos/srpphotography/wedding-album/contents/pages";
 
 
-startBtn.addEventListener("click", async function(){
+/*
+    START
+*/
 
-    startBtn.style.display = "none";
-    loading.style.display = "block";
+startBtn.addEventListener(
+    "click",
+    async function(){
 
-    loading.innerText = "Album starting...";
+        startBtn.style.display="none";
 
-    /* Music */
-    try{
-        await music.play();
-    }catch(e){}
+        loading.style.display="block";
 
-    try{
+        loading.innerText=
+            "Album starting...";
 
-        /* GitHub se saari JPG files automatically lena */
-
-        const response = await fetch(GITHUB_API);
-
-        if(!response.ok){
-            throw new Error("Pages folder नहीं मिला");
-        }
-
-        const files = await response.json();
-
-        const images = files
-            .filter(file =>
-                file.type === "file" &&
-                /\.(jpg|jpeg|png|webp)$/i.test(file.name)
-            )
-            .sort((a,b) =>
-                a.name.localeCompare(
-                    b.name,
-                    undefined,
-                    {
-                        numeric:true,
-                        sensitivity:"base"
-                    }
-                )
-            );
-
-        if(images.length === 0){
-            throw new Error("JPG images नहीं मिलीं");
-        }
-
-        loading.innerText =
-            "Album तैयार हो रहा है... " +
-            images.length + " photos";
 
         /*
-          हर image को पहले canvas में डालेंगे।
-          इससे original ratio preserve रहेगा।
+            MUSIC LOOP
         */
 
-        const pages = [];
+        music.loop=true;
 
-        for(let i=0;i<images.length;i++){
+        try{
 
-            loading.innerText =
-                "Album loading... " +
-                (i+1) + " / " +
-                images.length;
+            await music.play();
 
-            const img = new Image();
+        }catch(e){
 
-            img.src = images[i].download_url;
+            console.log(
+                "Music waiting for permission"
+            );
 
-            await new Promise((resolve,reject)=>{
+        }
 
-                img.onload = resolve;
-                img.onerror = reject;
 
-            });
+        /*
+            SHOW FIXED CONTROLS
+        */
+
+        cornerLogo.style.display="block";
+
+        whatsapp.style.display="flex";
+
+
+        try{
 
             /*
-              2:3 album page के अंदर image को
-              बिना stretch किए fit करना।
+                GET ALL JPG FILES
             */
 
-            const canvas =
-                document.createElement("canvas");
+            loading.innerText=
+                "Album pages खोज रहे हैं...";
 
-            const W = 600;
-            const H = 900;
 
-            canvas.width = W;
-            canvas.height = H;
+            const response =
+                await fetch(GITHUB_API);
 
-            const ctx = canvas.getContext("2d");
 
-            ctx.fillStyle = "#111";
-            ctx.fillRect(0,0,W,H);
+            if(!response.ok){
 
-            const imageRatio =
-                img.width / img.height;
-
-            const boxRatio = W / H;
-
-            let drawW;
-            let drawH;
-
-            if(imageRatio > boxRatio){
-
-                drawW = W;
-                drawH = W / imageRatio;
-
-            }else{
-
-                drawH = H;
-                drawW = H * imageRatio;
+                throw new Error(
+                    "Pages folder नहीं मिला"
+                );
 
             }
 
-            const x = (W - drawW) / 2;
-            const y = (H - drawH) / 2;
 
-            ctx.drawImage(
-                img,
-                x,
-                y,
-                drawW,
-                drawH
-            );
+            const files =
+                await response.json();
 
-            pages.push(
-                canvas.toDataURL(
-                    "image/jpeg",
-                    0.82
+
+            /*
+                ONLY IMAGE FILES
+            */
+
+            const images =
+                files
+                .filter(file =>
+
+                    file.type==="file" &&
+
+                    /\.(jpg|jpeg|png|webp)$/i
+                    .test(file.name)
+
                 )
+                .sort((a,b)=>
+
+                    a.name.localeCompare(
+                        b.name,
+                        undefined,
+                        {
+                            numeric:true,
+                            sensitivity:"base"
+                        }
+                    )
+
+                );
+
+
+            if(images.length===0){
+
+                throw new Error(
+                    "JPG images नहीं मिलीं"
+                );
+
+            }
+
+
+            loading.innerText=
+                images.length +
+                " photos मिलीं...";
+
+
+            /*
+                DIRECT IMAGE URLS
+            */
+
+            const pageImages =
+                images.map(
+                    file => file.download_url
+                );
+
+
+            /*
+                CREATE FLIPBOOK
+            */
+
+            const flip =
+                new St.PageFlip(
+                    book,
+                    {
+
+                        width:600,
+
+                        height:900,
+
+                        size:"stretch",
+
+                        minWidth:280,
+
+                        maxWidth:1000,
+
+                        minHeight:420,
+
+                        maxHeight:1400,
+
+                        showCover:true,
+
+                        mobileScrollSupport:false,
+
+                        usePortrait:true,
+
+                        maxShadowOpacity:.5,
+
+                        flippingTime:650
+
+                    }
+                );
+
+
+            /*
+                LOAD IMAGES
+            */
+
+            flip.loadFromImages(
+                pageImages
             );
+
+
+            /*
+                HIDE START SCREEN
+            */
+
+            start.style.display="none";
+
+
+        }catch(error){
+
+            loading.innerText=
+                "Error: "+
+                error.message;
+
+            console.error(error);
+
         }
 
-
-        loading.innerText =
-            "Flipbook तैयार हो रहा है...";
-
-
-        const flip =
-            new St.PageFlip(book,{
-
-                width:600,
-                height:900,
-
-                size:"stretch",
-
-                minWidth:280,
-                maxWidth:900,
-
-                minHeight:420,
-                maxHeight:1350,
-
-                showCover:true,
-
-                mobileScrollSupport:false,
-
-                usePortrait:true,
-
-                maxShadowOpacity:.5,
-
-                flippingTime:650
-
-            });
-
-
-        flip.loadFromImages(pages);
-
-
-        start.style.display = "none";
-
-
-    }catch(error){
-
-        loading.innerText =
-            "Error: " + error.message;
-
-        console.error(error);
-
     }
-
-});
+);
 
 </script>
 
